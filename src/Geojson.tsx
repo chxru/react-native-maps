@@ -213,13 +213,24 @@ const Geojson = (props: GeojsonProps) => {
         const markerColor = getColor(color, overlay, 'marker-color');
         const pointOverlayTracksViewChanges =
           overlay.feature.properties?.tracksViewChanges || tracksViewChanges;
+
+        // if the title of the marker is surrounded by curly braces, then replace the title with the value of the property
+        const placeholders = title?.match(/{([^}]+)}/);
+
+        let finalTitle = title;
+        if (Array.isArray(placeholders) && placeholders.length > 1) {
+          finalTitle = overlay.feature.properties
+            ? overlay.feature.properties[placeholders[1]]
+            : undefined;
+        }
+
         return (
           <Marker
             key={index}
             coordinate={overlay.coordinates}
             tracksViewChanges={pointOverlayTracksViewChanges}
             image={image}
-            title={title}
+            title={finalTitle}
             pinColor={markerColor}
             zIndex={zIndex}
             onPress={() => onPress && onPress(overlay)}>
